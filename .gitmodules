@@ -1,3 +1,18 @@
 [submodule "mods/concrete"]
 	path = mods/concrete
 	url = https://github.com/alexerate/concrete.git
+[submodule "mods/mobs_redo"]
+	path = mods/mobs_redo
+	url = https://github.com/tenplus1/mobs_redo.git
+[submodule "mods/mobs_animal"]
+	path = mods/mobs_animal
+	url = https://github.com/tenplus1/mobs_animal.git
+[submodule "mods/mobs_monster"]
+	path = mods/mobs_monster
+	url = https://github.com/tenplus1/mobs_monster.git
+[submodule "mods/mobs_npc"]
+	path = mods/mobs_npc
+	url = https://github.com/tenplus1/mobs_npc.git
+[submodule "mods/mob_horse"]
+	path = mods/mob_horse
+	url = https://github.com/tenplus1/mob_horse.git
