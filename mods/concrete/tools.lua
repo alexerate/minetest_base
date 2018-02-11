@@ -1,5 +1,8 @@
+local MP = minetest.get_modpath(minetest.get_current_modname())
+local S, NS = dofile(MP.."/intllib.lua")
+
 minetest.register_tool("concrete:pick", {
-	description = "Concrete Pickaxe (admin)",
+	description = S("Concrete Pickaxe (admin)"),
 	range = 12,
 	inventory_image = "concrete_pick.png",
 	--groups = {not_in_creative_inventory = maptools.creative},
