@@ -16,3 +16,6 @@
 [submodule "mods/mob_horse"]
 	path = mods/mob_horse
 	url = https://github.com/tenplus1/mob_horse.git
+[submodule "mods/mtg_i18n"]
+	path = mods/mtg_i18n
+	url = https://github.com/minetest-mods/mtg_i18n.git
