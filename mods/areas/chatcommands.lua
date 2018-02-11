@@ -1,15 +1,15 @@
 
 minetest.register_chatcommand("protect", {
-	params = "<AreaName>",
-	description = "Protect your own area",
+	params = "<NomArea>",
+	description = "Protéger votre propre zone",
 	privs = {[areas.config.self_protection_privilege]=true},
 	func = function(name, param)
 		if param == "" then
-			return false, "Invalid usage, see /help protect."
+			return false, "Usage invalide, voir /help protect."
 		end
 		local pos1, pos2 = areas:getPos(name)
 		if not (pos1 and pos2) then
-			return false, "You need to select an area first."
+			return false, "Vous devez d'abord définir une zone."
 		end
 
 		minetest.log("action", "/protect invoked, owner="..name..
@@ -19,38 +19,35 @@ minetest.register_chatcommand("protect", {
 
 		local canAdd, errMsg = areas:canPlayerAddArea(pos1, pos2, name)
 		if not canAdd then
-			return false, "You can't protect that area: "..errMsg
+			return false, "Vous ne pouvez pas protéger cette zone : "..errMsg
 		end
 
 		local id = areas:add(name, param, pos1, pos2, nil)
 		areas:save()
 
-		return true, "Area protected. ID: "..id
+		return true, "Zone protégé. ID : "..id
 	end
 })
 
 
 minetest.register_chatcommand("set_owner", {
-	params = "<PlayerName> <AreaName>",
-	description = "Protect an area beetween two positions and give"
-		.." a player access to it without setting the parent of the"
-		.." area to any existing area",
+	params = "<NomJoueur> <NomZone>",
+	description = "Protéger une zone entre 2 positions et donne l'accès à un joueur sans définir de zone parent.",
 	privs = areas.adminPrivs,
 	func = function(name, param)
 		local ownerName, areaName = param:match('^(%S+)%s(.+)$')
 
 		if not ownerName then
-			return false, "Incorrect usage, see /help set_owner."
+			return false, "Usage incorrect, voir /help set_owner."
 		end
 
 		local pos1, pos2 = areas:getPos(name)
 		if not (pos1 and pos2) then
-			return false, "You need to select an area first."
+			return false, "Vous devez d'abord définir une zone."
 		end
 
 		if not areas:player_exists(ownerName) then
-			return false, "The player \""
-					..ownerName.."\" does not exist."
+			return false, "Le joueur \""..ownerName.."\" n'existe pas."
 		end
 
 		minetest.log("action", name.." runs /set_owner. Owner = "..ownerName..
@@ -60,36 +57,32 @@ minetest.register_chatcommand("set_owner", {
 
 		local id = areas:add(ownerName, areaName, pos1, pos2, nil)
 		areas:save()
-	
-		minetest.chat_send_player(ownerName,
-				"You have been granted control over area #"..
-				id..". Type /list_areas to show your areas.")
-		return true, "Area protected. ID: "..id
+
+		minetest.chat_send_player(ownerName, "Vous avez reçu le contrôle de la zone #"..id..". Tapez /list_areas pour voir vos zone.")
+		return true, "Zone protégé. ID: "..id
 	end
 })
 
 
 minetest.register_chatcommand("add_owner", {
-	params = "<ParentID> <Player> <AreaName>",
-	description = "Give a player access to a sub-area beetween two"
-		.." positions that have already been protected,"
-		.." Use set_owner if you don't want the parent to be set.",
+	params = "<IDParent> <NomJoueur> <NomZone>",
+	description = "Donne l'accès à une sous-zone entre 2 positions qui a déjà été protégée. Utilisez set_owner si vous ne voulez pas définir de parent.",
 	func = function(name, param)
 		local pid, ownerName, areaName
 				= param:match('^(%d+) ([^ ]+) (.+)$')
 
 		if not pid then
-			minetest.chat_send_player(name, "Incorrect usage, see /help add_owner")
+			minetest.chat_send_player(name, "Usage incorrect, voir /help add_owner")
 			return
 		end
 
 		local pos1, pos2 = areas:getPos(name)
 		if not (pos1 and pos2) then
-			return false, "You need to select an area first."
+			return false, "Vous devez d'abord définir une zone."
 		end
 
 		if not areas:player_exists(ownerName) then
-			return false, "The player \""..ownerName.."\" does not exist."
+			return false, "Le joueur \""..ownerName.."\" n'existe pas."
 		end
 
 		minetest.log("action", name.." runs /add_owner. Owner = "..ownerName..
@@ -101,52 +94,50 @@ minetest.register_chatcommand("add_owner", {
 		pid = tonumber(pid)
 		if (not areas:isAreaOwner(pid, name)) or
 		   (not areas:isSubarea(pos1, pos2, pid)) then
-			return false, "You can't protect that area."
+			return false, "Vous ne pouvez pas protéger cette zone."
 		end
 
 		local id = areas:add(ownerName, areaName, pos1, pos2, pid)
 		areas:save()
 
-		minetest.chat_send_player(ownerName,
-				"You have been granted control over area #"..
-				id..". Type /list_areas to show your areas.")
-		return true, "Area protected. ID: "..id
+		minetest.chat_send_player(ownerName, "Vous avez reçu le contrôle de la zone #"..id..". Tapez /list_areas pour montrer vos zones.")
+		return true, "Zone protégée. ID: "..id
 	end
 })
 
 
 minetest.register_chatcommand("rename_area", {
-	params = "<ID> <newName>",
-	description = "Rename a area that you own",
+	params = "<ID> <nouveauNom>",
+	description = "Renommer une zone que vous possédez",
 	func = function(name, param)
 		local id, newName = param:match("^(%d+)%s(.+)$")
 		if not id then
-			return false, "Invalid usage, see /help rename_area."
+			return false, "Usage invalide, voir /help rename_area."
 		end
 
 		id = tonumber(id)
 		if not id then
-			return false, "That area doesn't exist."
+			return false, "Cette zone n'existe pas."
 		end
 
 		if not areas:isAreaOwner(id, name) then
-			return true, "You don't own that area."
+			return true, "Vous n'êtes pas propriétaire de la zone."
 		end
 
 		areas.areas[id].name = newName
 		areas:save()
-		return true, "Area renamed."
+		return true, "Zone renommée."
 	end
 })
 
 
 minetest.register_chatcommand("find_areas", {
 	params = "<regexp>",
-	description = "Find areas using a Lua regular expression",
+	description = "Trouve la/les zones qui correspondent à l'expression régulière lua",
 	privs = areas.adminPrivs,
 	func = function(name, param)
 		if param == "" then
-			return false, "A regular expression is required."
+			return false, "Une expression régulière est requise."
 		end
 
 		-- Check expression for validity
@@ -154,7 +145,7 @@ minetest.register_chatcommand("find_areas", {
 			("Test [1]: Player (0,0,0) (0,0,0)"):find(param)
 		end
 		if not pcall(testRegExp) then
-			return false, "Invalid regular expression."
+			return false, "Expression régulière non valide."
 		end
 
 		local matches = {}
@@ -167,14 +158,14 @@ minetest.register_chatcommand("find_areas", {
 		if #matches > 0 then
 			return true, table.concat(matches, "\n")
 		else
-			return true, "No matches found."
+			return true, "Aucune correspondance."
 		end
 	end
 })
 
 
 minetest.register_chatcommand("list_areas", {
-	description = "List your areas, or all areas if you are an admin.",
+	description = "Liste vos zones, ou toutes les zones si vous êtes admin.",
 	func = function(name, param)
 		local admin = minetest.check_player_privs(name, areas.adminPrivs)
 		local areaStrings = {}
@@ -184,7 +175,7 @@ minetest.register_chatcommand("list_areas", {
 			end
 		end
 		if #areaStrings == 0 then
-			return true, "No visible areas."
+			return true, "Pas de zone visible."
 		end
 		return true, table.concat(areaStrings, "\n")
 	end
@@ -193,71 +184,65 @@ minetest.register_chatcommand("list_areas", {
 
 minetest.register_chatcommand("recursive_remove_areas", {
 	params = "<id>",
-	description = "Recursively remove areas using an id",
+	description = "Supprime des zones de façon récursive avec un id",
 	func = function(name, param)
 		local id = tonumber(param)
 		if not id then
-			return false, "Invalid usage, see"
-					.." /help recursive_remove_areas"
+			return false, "Usage non valide, voir /help recursive_remove_areas"
 		end
 
 		if not areas:isAreaOwner(id, name) then
-			return false, "Area "..id.." does not exist or is"
-					.." not owned by you."
+			return false, "Zone "..id.." n'existe pas ou vous n'êtes pas propriétaire."
 		end
 
 		areas:remove(id, true)
 		areas:save()
-		return true, "Removed area "..id.." and it's sub areas."
+		return true, "Zone supprimée "..id.." ainsi que ses sous-zones."
 	end
 })
 
 
 minetest.register_chatcommand("remove_area", {
 	params = "<id>",
-	description = "Remove an area using an id",
+	description = "Supprime une zone identifiée par id",
 	func = function(name, param)
 		local id = tonumber(param)
 		if not id then
-			return false, "Invalid usage, see /help remove_area"
+			return false, "Usage non valide, voir /help remove_area"
 		end
 
 		if not areas:isAreaOwner(id, name) then
-			return false, "Area "..id.." does not exist or"
-					.." is not owned by you."
+			return false, "Zone "..id.." n'existe pas ou vous n'êtes pas propriétaire."
 		end
 
 		areas:remove(id)
 		areas:save()
-		return true, "Removed area "..id
+		return true, "Zone supprimée : "..id
 	end
 })
 
 
 minetest.register_chatcommand("change_owner", {
-	params = "<ID> <NewOwner>",
-	description = "Change the owner of an area using it's ID",
+	params = "<ID> <NouveauProprio>",
+	description = "Change le propriétaire d'une zone en utilisant son id",
 	func = function(name, param)
 		local id, newOwner = param:match("^(%d+)%s(%S+)$")
 		if not id then
-			return false, "Invalid usage, see"
-					.." /help change_owner."
+			return false, "Usage non valide, voir /help change_owner."
 		end
 
 		if not areas:player_exists(newOwner) then
-			return false, "The player \""..newOwner
-					.."\" does not exist."
+			return false, "Le joueur \""..newOwner.."\" n'existe pas."
 		end
 
 		id = tonumber(id)
 		if not areas:isAreaOwner(id, name) then
-			return false, "Area "..id.." does not exist"
-					.." or is not owned by you."
+			return false, "La zone "..id.." n'existe pas ou vous n'êtes pas propriétaire."
 		end
 		areas.areas[id].owner = newOwner
 		areas:save()
 		minetest.chat_send_player(newOwner,
-			("%s has given you control over the area %q (ID %d).")
+			("%s vous a donné le contrôle sur la zone %q (ID %d).")
 				:format(name, areas.areas[id].name, id))
 		return true, "Owner changed."
 	end
@@ -266,56 +251,55 @@ minetest.register_chatcommand("change_owner", {
 
 minetest.register_chatcommand("area_open", {
 	params = "<ID>",
-	description = "Toggle an area open (anyone can interact) or closed",
+	description = "Bascule une zone entre ouverte (tout le monde peut modifier) ou fermée",
 	func = function(name, param)
 		local id = tonumber(param)
 		if not id then
-			return false, "Invalid usage, see /help area_open."
+			return false, "Usage invalide, voir /help area_open."
 		end
 
 		if not areas:isAreaOwner(id, name) then
-			return false, "Area "..id.." does not exist"
-					.." or is not owned by you."
+			return false, "La zone "..id.." n'existe pas ou vous n'êtes pas propriétaire."
 		end
 		local open = not areas.areas[id].open
 		-- Save false as nil to avoid inflating the DB.
 		areas.areas[id].open = open or nil
 		areas:save()
-		return true, ("Area %s."):format(open and "opened" or "closed")
+		return true, ("Zone %s."):format(open and "ouverte" or "fermée")
 	end
 })
 
 
 minetest.register_chatcommand("move_area", {
 	params = "<ID>",
-	description = "Move (or resize) an area to the current positions.",
+	description = "Bouge (ou redimensionne) une zone aux positions courante.",
 	privs = areas.adminPrivs,
 	func = function(name, param)
 		local id = tonumber(param)
 		if not id then
-			return false, "Invalid usage, see /help move_area."
+			return false, "Usage non valide, voir /help move_area."
 		end
 
 		local area = areas.areas[id]
 		if not area then
-			return false, "Area does not exist."
+			return false, "La zone n'existe pas."
 		end
 
 		local pos1, pos2 = areas:getPos(name)
 		if not pos1 then
-			return false, "You need to select an area first."
+			return false, "Vous devez d'abord définir une zone."
 		end
 
 		areas:move(id, area, pos1, pos2)
 		areas:save()
 
-		return true, "Area successfully moved."
+		return true, "La zone a été bougé avec succès."
 	end,
 })
 
 
 minetest.register_chatcommand("area_info", {
-	description = "Get information about area configuration and usage.",
+	description = "Retourne des informations sur l'utilisation et la configuration de area.",
 	func = function(name, param)
 		local lines = {}
 		local privs = minetest.get_player_privs(name)
@@ -338,26 +322,19 @@ minetest.register_chatcommand("area_info", {
 			size_limit_high or size_limit
 
 		-- Privilege information
-		local self_prot_line = ("Self protection is %sabled"):format(
-				self_prot and "en" or "dis")
+		local self_prot_line = ("L'auto-protection est %sactivée"):format(self_prot and "" or "dés")
 		if self_prot and prot_priv then
-			self_prot_line = self_prot_line..
-				(" %s have the neccessary privilege (%q).")
-				:format(
-					has_prot_priv and "and you" or
-						"but you don't",
-					prot_priv)
+			self_prot_line = self_prot_line..(" %s avez le privilège nécessaire (%q)."):format(has_prot_priv and "et vous" or "mais vous n'", prot_priv)
 		else
 			self_prot_line = self_prot_line.."."
 		end
 		table.insert(lines, self_prot_line)
 		if privs.areas then
-			table.insert(lines, "You are an area"..
-				" administrator (\"areas\" privilege).")
+			table.insert(lines, "Vous êtes administrateur area (\"areas\" privilege).")
 		elseif has_high_limit then
 			table.insert(lines,
-				"You have extended area protection"..
-				" limits (\"areas_high_limit\" privilege).")
+				"Vous avez une zone de protection étendue"..
+				" (\"areas_high_limit\" privilege).")
 		end
 
 		-- Area count
@@ -367,26 +344,24 @@ minetest.register_chatcommand("area_info", {
 				area_num = area_num + 1
 			end
 		end
-		local count_line = ("You have %d area%s"):format(
+		local count_line = ("Vous avez %d zone%s"):format(
 			area_num, area_num == 1 and "" or "s")
 		if privs.areas then
 			count_line = count_line..
-				" and have no area protection limits."
+				" et aucune limite de protection de zone."
 		elseif can_prot then
-			count_line = count_line..(", out of a maximum of %d.")
+			count_line = count_line..(", sur un maximum de %d.")
 				:format(max_count)
 		end
 		table.insert(lines, count_line)
 
 		-- Area size limits
 		local function size_info(str, size)
-			table.insert(lines, ("%s spanning up to %dx%dx%d.")
+			table.insert(lines, ("%s couvre jusqu'à %dx%dx%d.")
 				:format(str, size.x, size.y, size.z))
 		end
 		local function priv_limit_info(priv, max_count, max_size)
-			size_info(("Players with the %q privilege"..
-				" can protect up to %d areas"):format(
-					priv, max_count), max_size)
+			size_info(("Les joueurs avec le privilège %q peuvent protéger jusqu'à %d zones"):format(priv, max_count), max_size)
 		end
 		if self_prot then
 			if privs.areas then
@@ -395,11 +370,10 @@ minetest.register_chatcommand("area_info", {
 				priv_limit_info("areas_high_limit",
 					limit_high, size_limit_high)
 			elseif has_prot_priv then
-				size_info("You can protect areas", max_size)
+				size_info("Vous pouvez protéger des zones", max_size)
 			end
 		end
 
 		return true, table.concat(lines, "\n")
 	end,
 })
-

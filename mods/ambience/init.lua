@@ -393,7 +393,7 @@ end)
 -- set volume commands
 minetest.register_chatcommand("svol", {
 	params = "<svol>",
-	description = "set sound volume (0.1 to 1.0)",
+	description = "définie le volume des sons (0.1 à 1.0)",
 	privs = {server = true},
 
 	func = function(name, param)
@@ -403,13 +403,13 @@ minetest.register_chatcommand("svol", {
 		if SOUNDVOLUME < 0.1 then SOUNDVOLUME = 0.1 end
 		if SOUNDVOLUME > 1.0 then SOUNDVOLUME = 1.0 end
 
-		return true, "Sound volume set to " .. SOUNDVOLUME
+		return true, "Volume des sons définie à " .. SOUNDVOLUME
 	end,
 })
 
 minetest.register_chatcommand("mvol", {
 	params = "<mvol>",
-	description = "set music volume (0.1 to 1.0)",
+	description = "Définie le volume de la musique (0.1 à 1.0)",
 	privs = {server = true},
 
 	func = function(name, param)
@@ -419,6 +419,6 @@ minetest.register_chatcommand("mvol", {
 		if MUSICVOLUME < 0.1 then MUSICVOLUME = 0.1 end
 		if MUSICVOLUME > 1.0 then MUSICVOLUME = 1.0 end
 
-		return true, "Music volume set to " .. MUSICVOLUME
+		return true, "Volume de la musique définie à " .. MUSICVOLUME
 	end,
 })

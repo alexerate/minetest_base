@@ -13,26 +13,25 @@ areas.pos2 = {}
 
 minetest.register_chatcommand("select_area", {
 	params = "<ID>",
-	description = "Select a area by id.",
+	description = "Sélectionner une zone avec son id (visible avec /list_areas).",
 	func = function(name, param)
 		local id = tonumber(param)
 		if not id then
-			return false, "Invalid usage, see /help select_area."
+			return false, "Usage non valide, voir /help select_area."
 		end
 		if not areas.areas[id] then
-			return false, "The area "..id.." does not exist."
+			return false, "La zone "..id.." n'existe pas."
 		end
 
 		areas:setPos1(name, areas.areas[id].pos1)
 		areas:setPos2(name, areas.areas[id].pos2)
-		return true, "Area "..id.." selected."
+		return true, "La zone "..id.." est sélectionnée."
 	end,
 })
 
 minetest.register_chatcommand("area_pos1", {
 	params = "[X Y Z|X,Y,Z]",
-	description = "Set area protection region position 1 to your"
-		.." location or the one specified",
+	description = "Définie la position1 de la future région à protéger sur votre position ou celle spécifiée",
 	privs = {},
 	func = function(name, param)
 		local pos = nil
@@ -45,22 +44,20 @@ minetest.register_chatcommand("area_pos1", {
 			if player then
 				pos = player:getpos()
 			else
-				return false, "Unable to get position."
+				return false, "Impossible d'obtenir la position."
 			end
 		else
-			return false, "Invalid usage, see /help area_pos1."
+			return false, "Usage non valide, voir /help area_pos1."
 		end
 		pos = vector.round(pos)
 		areas:setPos1(name, pos)
-		return true, "Area position 1 set to "
-				..minetest.pos_to_string(pos)
+		return true, "Position1 définie au point "..minetest.pos_to_string(pos)
 	end,
 })
 
 minetest.register_chatcommand("area_pos2", {
 	params = "[X Y Z|X,Y,Z]",
-	description = "Set area protection region position 2 to your"
-		.." location or the one specified",
+	description = "Définie la position2 de la future région à protéger sur votre position ou celle spécifiée",
 	func = function(name, param)
 		local pos = nil
 		local found, _, x, y, z = param:find(
@@ -72,48 +69,46 @@ minetest.register_chatcommand("area_pos2", {
 			if player then
 				pos = player:getpos()
 			else
-				return false, "Unable to get position."
+				return false, "Impossible d'obtenir la position."
 			end
 		else
-			return false, "Invalid usage, see /help area_pos2."
+			return false, "Usage non valide, voir /help area_pos2."
 		end
 		pos = vector.round(pos)
 		areas:setPos2(name, pos)
-		return true, "Area position 2 set to "
-				..minetest.pos_to_string(pos)
+		return true, "Position1 définie au point "..minetest.pos_to_string(pos)
 	end,
 })
 
 
 minetest.register_chatcommand("area_pos", {
 	params = "set/set1/set2/get",
-	description = "Set area protection region, position 1, or position 2"
-		.." by punching nodes, or display the region",
+	description = "Définie la zone de protection, position 1, ou position 2 en tapant les blocks, ou affiche la zone",
 	func = function(name, param)
 		if param == "set" then -- Set both area positions
 			areas.set_pos[name] = "pos1"
-			return true, "Select positions by punching two nodes."
+			return true, "Sélectionnez les positions en tapant 2 blocks."
 		elseif param == "set1" then -- Set area position 1
 			areas.set_pos[name] = "pos1only"
-			return true, "Select position 1 by punching a node."
+			return true, "Sélectionnez la position1 en tapant un block."
 		elseif param == "set2" then -- Set area position 2
 			areas.set_pos[name] = "pos2"
-			return true, "Select position 2 by punching a node."
+			return true, "Sélectionnez la position2 en tapant un block."
 		elseif param == "get" then -- Display current area positions
 			local pos1str, pos2str = "Position 1: ", "Position 2: "
 			if areas.pos1[name] then
 				pos1str = pos1str..minetest.pos_to_string(areas.pos1[name])
 			else
-				pos1str = pos1str.."<not set>"
+				pos1str = pos1str.."<non définie>"
 			end
 			if areas.pos2[name] then
 				pos2str = pos2str..minetest.pos_to_string(areas.pos2[name])
 			else
-				pos2str = pos2str.."<not set>"
+				pos2str = pos2str.."<non définie>"
 			end
 			return true, pos1str.."\n"..pos2str
 		else
-			return false, "Unknown subcommand: "..param
+			return false, "Sous-commande inconnue : "..param
 		end
 	end,
 })
@@ -149,21 +144,21 @@ minetest.register_on_punchnode(function(pos, node, puncher)
 			areas.markPos1(name)
 			areas.set_pos[name] = "pos2"
 			minetest.chat_send_player(name,
-					"Position 1 set to "
+					"Position 1 définie sur "
 					..minetest.pos_to_string(pos))
 		elseif areas.set_pos[name] == "pos1only" then
 			areas.pos1[name] = pos
 			areas.markPos1(name)
 			areas.set_pos[name] = nil
 			minetest.chat_send_player(name,
-					"Position 1 set to "
+					"Position 1 définie sur "
 					..minetest.pos_to_string(pos))
 		elseif areas.set_pos[name] == "pos2" then
 			areas.pos2[name] = pos
 			areas.markPos2(name)
 			areas.set_pos[name] = nil
 			minetest.chat_send_player(name,
-					"Position 2 set to "
+					"Position 2 définie sur "
 					..minetest.pos_to_string(pos))
 		end
 	end
@@ -252,4 +247,3 @@ minetest.register_entity("areas:pos2", {
 		areas.marker2[name] = nil
 	end,
 })
-
