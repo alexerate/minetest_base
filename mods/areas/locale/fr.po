@@ -60,7 +60,7 @@ msgstr "Position 2 définie sur "
 
 #: chatcommands.lua
 msgid "<AreaName>"
-msgstr "<NomZone"
+msgstr "<NomZone>"
 msgid "Protect your own area"
 msgstr "Protège votre propre zone"
 msgid "Invalid usage, see "
