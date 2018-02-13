@@ -19,3 +19,6 @@
 [submodule "mods/mtg_i18n"]
 	path = mods/mtg_i18n
 	url = https://github.com/minetest-mods/mtg_i18n.git
+[submodule "mods/display_modpack"]
+	path = mods/display_modpack
+	url = https://github.com/pyrollo/display_modpack.git
