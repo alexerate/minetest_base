@@ -1,5 +1,6 @@
--- Areas mod by ShadowNinja
--- Based on node_ownership
+local MP = minetest.get_modpath(minetest.get_current_modname())
+local S, NS = dofile(MP.."/intllib.lua")
+-- Based on mod by ShadowNinja, Based on node_ownership
 -- License: LGPLv2+
 
 areas = {}
@@ -20,15 +21,15 @@ dofile(areas.modpath.."/hud.lua")
 areas:load()
 
 minetest.register_privilege("areas", {
-	description = "Peut administrer les zones."
+	description = S("Can administer areas.")
 })
 minetest.register_privilege("areas_high_limit", {
-	description = "Peut protéger des zones plus grandes."
+	description = S("Can can more, bigger areas.")
 })
 
 if not minetest.registered_privileges[areas.config.self_protection_privilege] then
 	minetest.register_privilege(areas.config.self_protection_privilege, {
-		description = "Peut protéger des zones.",
+		description = S("Can protect areas."),
 	})
 end
 
